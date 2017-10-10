@@ -1,58 +1,73 @@
-pipeline-node {
+pipeline {
     agent any 
 
     stages {
         stage('Prepare') {
             steps {
-                sh 'composer install'
-                sh 'rm -rf build/api'
-                sh 'rm -rf build/coverage'
-                sh 'rm -rf build/logs'
-                sh 'rm -rf build/pdepend'
-                sh 'rm -rf build/phpdox'
-                sh 'mkdir build/api'
-                sh 'mkdir build/coverage'
-                sh 'mkdir build/logs'
-                sh 'mkdir build/pdepend'
-                sh 'mkdir build/phpdox'
+                sh 'rm -rf app/build/api'
+                sh 'rm -rf app/build/code-browser'
+                sh 'rm -rf app/build/coverage'
+                sh 'rm -rf app/build/logs'
+                sh 'rm -rf app/build/pdepend'
+                sh 'rm -rf app/build/phpdox'
+                sh 'mkdir app/build/api'
+                sh 'mkdir app/build/code-browser'
+                sh 'mkdir app/build/coverage'
+                sh 'mkdir app/build/logs'
+                sh 'mkdir app/build/pdepend'
+                sh 'mkdir app/build/phpdox'
+                sh 'composer self-update'
+                sh 'composer update'
             }
         }
-        stage('PHP Syntax check') { steps { sh 'vendor/bin/parallel-lint --exclude vendor/ .' } }
+        stage('PHP Syntax check') {
+            steps {
+                sh 'app/bin/parallel-lint -exclude app --exclude vendor/ .'
+            }
+        }
         stage('Test'){
             steps {
-                sh 'vendor/bin/phpunit -c build/phpunit.xml || exit 0'
+                sh 'bin/phpunit -c app/phpunit.xml || exit 0'
                 step([
                     $class: 'XUnitBuilder',
                     thresholds: [[$class: 'FailedThreshold', unstableThreshold: '1']],
-                    tools: [[$class: 'JUnitType', pattern: 'build/logs/junit.xml']]
+                    tools: [[$class: 'JUnitType', pattern: 'build/logs/phpunit.xml']]
                 ])
-                publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'build/coverage', reportFiles: 'index.html', reportName: 'Coverage Report', reportTitles: ''])
+                publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'app/build/coverage', reportFiles: 'index.html', reportName: 'Coverage Report', reportTitles: ''])
                 /* BROKEN step([$class: 'CloverPublisher', cloverReportDir: 'build/coverage', cloverReportFileName: 'build/logs/clover.xml']) */
                 /* BROKEN step([$class: 'hudson.plugins.crap4j.Crap4JPublisher', reportPattern: 'build/logs/crap4j.xml', healthThreshold: '10']) */
             }
         }
         stage('Checkstyle') {
             steps {
-                sh 'vendor/bin/phpcs --report=checkstyle --report-file=`pwd`/build/logs/checkstyle.xml --standard=PSR2 --extensions=php --ignore=autoload.php --ignore=vendor/ . || exit 0'
-                checkstyle pattern: 'build/logs/checkstyle.xml'
+                sh 'bin/phpcs --report=checkstyle --report-file=`pwd`/app/build/logs/checkstyle.xml --standard=PSR2 --extensions=php src/ || exit 0'
+                checkstyle pattern: 'app/build/logs/checkstyle.xml'
             }
         }
-        stage('Lines of Code') { steps { sh 'vendor/bin/phploc --count-tests --exclude vendor/ --log-csv build/logs/phploc.csv --log-xml build/logs/phploc.xml .' } }
+        stage('Lines of Code') {
+            steps { sh 'bin/phploc --count-tests --log-csv app/build/logs/phploc.csv --log-xml app/build/logs/phploc.xml src/' }
+        }
         stage('Copy paste detection') {
             steps {
-                sh 'vendor/bin/phpcpd --log-pmd build/logs/pmd-cpd.xml --exclude vendor . || exit 0'
+                sh 'bin/phpcpd --log-pmd app/build/logs/pmd-cpd.xml src/ || exit 0'
                 dry canRunOnFailed: true, pattern: 'build/logs/pmd-cpd.xml'
             }
         }
-        /* -- SLOW
+        /* -- SLOW */
         stage('Mess detection') {
             steps {
-                sh 'vendor/bin/phpmd . xml build/phpmd.xml --reportfile build/logs/pmd.xml --exclude vendor/ || exit 0'
-                pmd canRunOnFailed: true, pattern: 'build/logs/pmd.xml'
+                sh 'bin/phpmd src/ xml app/build/phpmd.xml --reportfile app/build/logs/pmd.xml src/ || exit 0'
+                pmd canRunOnFailed: true, pattern: 'app/build/logs/pmd.xml'
             }
         }
-        stage('Software metrics') { steps { sh 'vendor/bin/pdepend --jdepend-xml=build/logs/jdepend.xml --jdepend-chart=build/pdepend/dependencies.svg --overview-pyramid=build/pdepend/overview-pyramid.svg --ignore=vendor .' } }
-        stage('Generate documentation') { steps { sh 'vendor/bin/phpdox -f build/phpdox.xml' } }
-        */
+        /* -- SLOW */
+        stage('Software metrics') {
+            steps { sh 'bin/pdepend --jdepend-xml=app/build/logs/jdepend.xml --jdepend-chart=app/build/pdepend/dependencies.svg --overview-pyramid=app/build/pdepend/overview-pyramid.svg src/'
+            }
+        }
+        stage('Generate documentation') {
+            steps { sh 'bin/phpdox -f build/phpdox.xml'
+            }
+        }
     }
 }
