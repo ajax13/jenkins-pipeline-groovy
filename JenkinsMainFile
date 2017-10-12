@@ -1,0 +1,16 @@
+pipelineRepo = "https://github.com/ajax13/jenkins-pipeline-groovy.git"
+pipelineBranch = "master"
+script = "Jenkinsfile"
+
+repositoryUrl = "https://github.com/ajax13/rest-api.git"
+branch = "jk-pipeline"
+/* --
+cfApiEndpoint = "<cf-api-endpoint>"
+cfOrg = "<cf-org>"
+cfSpace = "<cf-space>"
+*/
+
+node () {
+    git poll: false, changelog: false, url: pipelineRepo, credentialsId: "git-credentials", branch: pipelineBranch
+    load script
+}
