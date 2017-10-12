@@ -2,6 +2,11 @@ pipeline {
     agent any 
 
     stages {
+        stage('Clone sources') {
+           steps {
+                sh '[ "$(ls -A .)" ] && git pull origin jk-pipeline || git clone https://github.com/ajax13/rest-api.git ../rest-api-pipeline'
+           }
+        }
         stage('Prepare') {
             steps {
                 sh 'rm -rf app/build/api'
@@ -16,8 +21,9 @@ pipeline {
                 sh 'mkdir app/build/logs'
                 sh 'mkdir app/build/pdepend'
                 sh 'mkdir app/build/phpdox'
-                sh 'composer self-update'
-                sh 'composer update'
+                sh 'composer.phar self-update'
+                sh 'composer.phar update'
+                sh 'composer.phar install --dev --prefer-dist --no-progress'
             }
         }
         stage('PHP Syntax check') {
