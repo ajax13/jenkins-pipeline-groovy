@@ -56,7 +56,7 @@ pipeline {
         stage('Copy paste detection') {
             steps {
                 sh 'bin/phpcpd --log-pmd app/build/logs/pmd-cpd.xml src/ || exit 0'
-                dry canRunOnFailed: true, pattern: 'build/logs/pmd-cpd.xml'
+                dry canRunOnFailed: true, pattern: 'app/build/logs/pmd-cpd.xml'
             }
         }
         /* -- SLOW */
