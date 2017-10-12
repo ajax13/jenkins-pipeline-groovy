@@ -72,7 +72,7 @@ pipeline {
             }
         }
         stage('Generate documentation') {
-            steps { sh 'bin/phpdox -f build/phpdox.xml'
+            steps { sh 'bin/phpdox -f app/phpdox.xml'
             }
         }
     }
