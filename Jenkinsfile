@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Clone sources') {
            steps {
-                sh '[ "$(ls -A .)" ] && git pull origin jk-pipeline || git clone https://github.com/ajax13/rest-api.git ../rest-api-pipeline'
+                git url: repositoryUrl, credentialsId: "git-credentials", branch: branch
            }
         }
         stage('Prepare') {
