@@ -21,9 +21,9 @@ pipeline {
                 sh 'mkdir app/build/logs'
                 sh 'mkdir app/build/pdepend'
                 sh 'mkdir app/build/phpdox'
-                sh 'composer.phar self-update'
-                sh 'composer.phar update'
-                sh 'composer.phar install --dev --prefer-dist --no-progress'
+                sh 'php composer.phar self-update'
+                sh 'php composer.phar update'
+                sh 'php composer.phar install --dev --prefer-dist --no-progress'
             }
         }
         stage('PHP Syntax check') {
