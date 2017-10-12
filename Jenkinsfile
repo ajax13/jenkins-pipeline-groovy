@@ -22,13 +22,13 @@ pipeline {
                 sh 'mkdir -p app/build/pdepend'
                 sh 'mkdir -p app/build/phpdox'
                 sh 'php composer.phar self-update'
-                sh 'php composer.phar update'
+                /* sh 'php composer.phar update' */
                 sh 'php composer.phar install --dev --prefer-dist --no-progress'
             }
         }
         stage('PHP Syntax check') {
             steps {
-                sh 'app/bin/parallel-lint -exclude app --exclude vendor/ .'
+                sh 'bin/parallel-lint src/'
             }
         }
         stage('Test'){
