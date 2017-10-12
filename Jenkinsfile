@@ -2,6 +2,11 @@ pipeline {
     agent any 
 
     stages {
+        stage('Clone sources') {
+           steps {
+                sh '[ "$(ls -A .)" ] && git pull origin jk-pipeline || git clone https://github.com/ajax13/rest-api.git ../rest-api-pipeline'
+           }
+        }
         stage('Prepare') {
             steps {
                 sh 'rm -rf app/build/api'
