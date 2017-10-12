@@ -37,11 +37,11 @@ pipeline {
                 step([
                     $class: 'XUnitBuilder',
                     thresholds: [[$class: 'FailedThreshold', unstableThreshold: '1']],
-                    tools: [[$class: 'JUnitType', pattern: 'build/logs/phpunit.xml']]
+                    tools: [[$class: 'JUnitType', pattern: 'app/build/logs/phpunit.xml']]
                 ])
                 publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'app/build/coverage', reportFiles: 'index.html', reportName: 'Coverage Report', reportTitles: ''])
-                /* BROKEN step([$class: 'CloverPublisher', cloverReportDir: 'build/coverage', cloverReportFileName: 'build/logs/clover.xml']) */
-                /* BROKEN step([$class: 'hudson.plugins.crap4j.Crap4JPublisher', reportPattern: 'build/logs/crap4j.xml', healthThreshold: '10']) */
+                /* BROKEN step([$class: 'CloverPublisher', cloverReportDir: 'build/coverage', cloverReportFileName: 'app/&build/logs/clover.xml']) */
+                /* BROKEN step([$class: 'hudson.plugins.crap4j.Crap4JPublisher', reportPattern: 'app/build/logs/crap4j.xml', healthThreshold: '10']) */
             }
         }
         stage('Checkstyle') {
