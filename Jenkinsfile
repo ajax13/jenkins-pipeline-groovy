@@ -75,5 +75,9 @@ pipeline {
             steps { sh 'bin/phpdox -f app/phpdox.xml'
             }
         }
+        stage('Generate php metrics') {
+            steps { sh 'bin/phpmetrics --report-html=app/build/phpmetrics.html --report-xml=app/build/phpmetrics.xml --report-violations=app/build/violations.xml src'
+            }
+        }
     }
 }
